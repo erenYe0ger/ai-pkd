@@ -24,4 +24,4 @@ def chat(query: Query) -> dict:
 
     chat_response = generate_answer(query.question, merged_context)
 
-    return {"response": chat_response, "context": contexts}
+    return {"response": chat_response, "contexts": contexts}

@@ -12,10 +12,10 @@ function App() {
             <Sidebar />
 
             <MainPanel
-                onShowContexts={(newContexts: string[]) => {
-                    setContexts(newContexts);
-                    setIsContextOpen(true);
-                }}
+                onShowContexts={() => setIsContextOpen(true)}
+                setNewContexts={(newContexts: string[]) =>
+                    setContexts(newContexts)
+                }
             />
 
             <ContextPanel
