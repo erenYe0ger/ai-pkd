@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, UploadFile, File
 import os
 from app.services.pdf_extractor import extract_text_from_pdf
@@ -8,9 +9,15 @@ from app.services.vectorstore import add_embeddings
 router = APIRouter()
 UPLOAD_DIR = "data/uploads"
 
+
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
+    doc_uid = str(uuid.uuid4())
+
+    doc_folder = f"{UPLOAD_DIR}/{doc_uid}"
+    os.makedirs(doc_folder, exist_ok=True)
+
+    file_path = os.path.join(doc_folder, file.filename)
 
     with open(file_path, "wb") as f:
         f.write(await file.read())
@@ -21,11 +28,11 @@ async def upload_file(file: UploadFile = File(...)):
 
     embeddings = [get_embedding(chunk) for chunk in chunks]
 
-    doc_id = file.filename
-    add_embeddings(doc_id, chunks, embeddings)
+    add_embeddings(doc_uid, chunks, embeddings)
 
     return {
+        "doc_uid": doc_uid,
         "filename": file.filename,
         "chunks": len(chunks),
-        "status": "stored in vector db"
+        "status": "stored in vector db",
     }

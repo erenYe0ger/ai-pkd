@@ -7,8 +7,11 @@ from app.services.chat_model import format_text
 
 router = APIRouter()
 
+
 class Query(BaseModel):
+    doc_uid: str
     question: str
+
 
 @router.post("/chat")
 def chat(query: Query) -> dict:
@@ -17,7 +20,7 @@ def chat(query: Query) -> dict:
     # query_embeddings(query_embedding) returns a dict:
     # {"ids": [[...], [...], ...], "documents": [[...], [...], ...], "embeddings": [[...], [...], ...] }
 
-    contexts = query_embeddings(query_embedding)["documents"][0]
+    contexts = query_embeddings(query.doc_uid, query_embedding)["documents"][0]
     contexts = [format_text(context) for context in contexts]
 
     merged_context = "\n\n".join(contexts)

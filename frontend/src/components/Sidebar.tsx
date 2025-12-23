@@ -1,10 +1,30 @@
 import { uploadPDF } from "../api/upload";
 
-export default function Sidebar() {
+type DocumentItem = {
+    id: string;
+    docName: string;
+};
+
+type Props = {
+    documents: DocumentItem[];
+    onAddDoc: (doc_uid: string, docName: string) => void;
+    activeDoc: string | null;
+    onSelectDoc: (doc_uid: string) => void;
+};
+
+export default function Sidebar({
+    documents,
+    onAddDoc,
+    activeDoc,
+    onSelectDoc,
+}: Props) {
     async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
         if (!file) return;
-        await uploadPDF(file);
+
+        const res = await uploadPDF(file);
+
+        onAddDoc(res.doc_uid, file.name);
     }
 
     return (
@@ -22,9 +42,19 @@ export default function Sidebar() {
             </label>
 
             <div className="flex-1 space-y-2 overflow-y-auto">
-                <div className="p-2 rounded bg-gray-100 cursor-pointer">
-                    Sample.pdf
-                </div>
+                {documents.map((doc) => (
+                    <div
+                        onClick={() => onSelectDoc(doc.id)}
+                        key={doc.id}
+                        className={`p-2 rounded cursor-pointer ${
+                            activeDoc === doc.id
+                                ? "bg-gray-200 font-medium"
+                                : "hover:bg-gray-100"
+                        }`}
+                    >
+                        {doc.docName}
+                    </div>
+                ))}
             </div>
         </div>
     );

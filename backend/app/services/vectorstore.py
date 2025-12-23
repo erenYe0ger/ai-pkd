@@ -1,24 +1,25 @@
 import chromadb
 
-client = chromadb.PersistentClient(path="data/chroma_db")
+STORE_DIR = "data/chroma"
 
-collection = client.get_or_create_collection(
-    name = "documents",
-    metadata = {"hnsw:space": "cosine"}
-)
 
-def add_embeddings(doc_id: str, chunks: list[str], embeddings: list[list[float]]):
-    ids = [f"{doc_id}_{i}" for i in range(len(chunks))]
+def get_store(doc_uid: str):
+    client = chromadb.PersistentClient(path=f"{STORE_DIR}/{doc_uid}")
 
-    collection.add(
-        ids = ids,
-        documents = chunks,
-        embeddings = embeddings
+    return client.get_or_create_collection(
+        name="chunks", metadata={"hnsw:space": "cosine"}
     )
 
 
-def query_embeddings(query_embedding: list[float], k: int = 5):
-    return collection.query(
-        query_embeddings = [query_embedding],
-        n_results = k
-    )
+def add_embeddings(doc_uid: str, chunks, embeddings):
+    collection = get_store(doc_uid)
+
+    ids = [str(i) for i in range(len(chunks))]
+
+    collection.add(ids=ids, documents=chunks, embeddings=embeddings)
+
+
+def query_embeddings(doc_uid: str, query_embedding: list[float], k: int = 5):
+    collection = get_store(doc_uid)
+
+    return collection.query(query_embeddings=[query_embedding], n_results=k)

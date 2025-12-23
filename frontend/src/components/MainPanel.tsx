@@ -7,28 +7,46 @@ type Message = {
     content: string;
 };
 
-export default function MainPanel({ onShowContexts, setNewContexts }: any) {
-    const hasActiveDoc = true;
+type Props = {
+    onShowContexts: () => void;
+    setNewContexts: (newContexts: string[]) => void;
+    activeDoc: string | null;
+    messages: Message[];
+    setMessages: (newMsgs: Message[]) => void;
+};
 
-    const [messages, setMessages] = useState<Message[]>([]);
+export default function MainPanel({
+    onShowContexts,
+    setNewContexts,
+    activeDoc,
+    messages,
+    setMessages,
+}: Props) {
     const [input, setInput] = useState("");
 
     async function handleQuery() {
-        setMessages((prev) => [...prev, { role: "User", content: input }]);
+        if (!activeDoc) return;
+
+        const userMsg: Message = { role: "User", content: input };
+        const addedUserMessage = [...messages, userMsg];
+        setMessages(addedUserMessage);
         setInput("");
 
-        const res = await queryRag(input);
-        setMessages((prev) => [...prev, { role: "AI", content: res.response }]);
+        const res = await queryRag(activeDoc, input);
+
+        const aiMsg: Message = { role: "AI", content: res.response };
+        const finalMessage = [...addedUserMessage, aiMsg];
+        setMessages(finalMessage);
 
         setNewContexts(res.contexts);
     }
 
-    if (!hasActiveDoc) {
+    if (!activeDoc) {
         return (
             <div className="flex-1 flex justify-center items-center">
-                <button className="cursor-pointer p-4 border rounded">
-                    Upload a PDF to start
-                </button>
+                <div className="text-center text-gray-800 text-xl">
+                    Select or Upload a PDF to start
+                </div>
             </div>
         );
     }
