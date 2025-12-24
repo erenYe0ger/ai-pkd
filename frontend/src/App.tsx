@@ -6,6 +6,7 @@ import { useState } from "react";
 type Message = {
     role: "User" | "AI";
     content: string;
+    contexts?: string[];
 };
 
 type DocumentItem = {

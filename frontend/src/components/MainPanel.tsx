@@ -5,6 +5,7 @@ import { queryRag } from "../api/chat";
 type Message = {
     role: "User" | "AI";
     content: string;
+    contexts?: string[];
 };
 
 type Props = {
@@ -34,11 +35,13 @@ export default function MainPanel({
 
         const res = await queryRag(activeDoc, input);
 
-        const aiMsg: Message = { role: "AI", content: res.response };
+        const aiMsg: Message = {
+            role: "AI",
+            content: res.response,
+            contexts: res.contexts,
+        };
         const finalMessage = [...addedUserMessage, aiMsg];
         setMessages(finalMessage);
-
-        setNewContexts(res.contexts);
     }
 
     if (!activeDoc) {
@@ -70,7 +73,11 @@ export default function MainPanel({
                         {msg.role === "AI" && (
                             <button
                                 className="text-blue-500 mt-2 block text-sm cursor-pointer"
-                                onClick={onShowContexts}
+                                onClick={() => {
+                                    if (msg.contexts)
+                                        setNewContexts(msg.contexts);
+                                    onShowContexts();
+                                }}
                             >
                                 Show Contexts
                             </button>
