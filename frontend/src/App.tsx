@@ -22,7 +22,15 @@ function App() {
     const [chats, setChats] = useState<Record<string, Message[]>>({});
 
     return (
-        <div className="h-screen flex">
+        <div className="h-screen flex bg-linear-to-br from-[#050510] via-[#0b0b23] to-[#1b0f2e] text-gray-200 relative overflow-hidden">
+            <div
+                className="absolute inset-0 pointer-events-none opacity-30 blur-3xl"
+                style={{
+                    background:
+                        "radial-gradient(circle at 20% 30%, #6a3cff, transparent 40%), radial-gradient(circle at 80% 60%, #00eaff, transparent 45%), radial-gradient(circle at 50% 90%, #ff00c8, transparent 55%)",
+                }}
+            ></div>
+
             <Sidebar
                 documents={documents}
                 onAddDoc={(doc_uid: string, docName: string) => {
@@ -61,4 +69,5 @@ function App() {
         </div>
     );
 }
+
 export default App;

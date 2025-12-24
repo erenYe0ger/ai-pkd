@@ -28,10 +28,11 @@ export default function Sidebar({
     }
 
     return (
-        <div className="w-60 border-r p-4 flex flex-col">
-            <h2 className="font-bold m-4">My Docs</h2>
-
-            <label className="border rounded p-2 mb-4 cursor-pointer text-center">
+        <div className="w-64 border-r border-white/10 bg-black/30 backdrop-blur-xl p-6 flex flex-col shadow-lg shadow-black/30 relative">
+            <h2 className="font-semibold text-lg mb-6 bg-linear-to-r from-purple-400 to-cyan-400 text-transparent bg-clip-text">
+                Your Docs
+            </h2>
+            <label className="rounded-xl bg-linear-to-r from-purple-600/40 to-cyan-500/40 backdrop-blur-md border border-white/10 py-3 mb-6 text-center cursor-pointer text-gray-100 font-medium shadow-[0_0_12px_rgba(0,0,0,0.4)] hover:shadow-[0_0_22px_rgba(120,0,255,0.5)] transition-all">
                 Upload PDF
                 <input
                     type="file"
@@ -40,16 +41,15 @@ export default function Sidebar({
                     onChange={handleUpload}
                 />
             </label>
-
-            <div className="flex-1 space-y-2 overflow-y-auto">
+            <div className="flex-1 space-y-2 overflow-y-auto aurora-scroll">
                 {documents.map((doc) => (
                     <div
-                        onClick={() => onSelectDoc(doc.id)}
                         key={doc.id}
-                        className={`p-2 rounded cursor-pointer ${
+                        onClick={() => onSelectDoc(doc.id)}
+                        className={`px-3 py-2 rounded-lg cursor-pointer transition ${
                             activeDoc === doc.id
-                                ? "bg-gray-200 font-medium"
-                                : "hover:bg-gray-100"
+                                ? "bg-linear-to-r from-purple-600/40 to-cyan-500/40 border border-purple-500/30"
+                                : "hover:bg-white/5"
                         }`}
                     >
                         {doc.docName}
