@@ -51,6 +51,7 @@ function App() {
             />
 
             <MainPanel
+                documents={documents}
                 onShowContexts={() => setIsContextOpen(true)}
                 setNewContexts={setContexts}
                 activeDoc={activeDoc}
