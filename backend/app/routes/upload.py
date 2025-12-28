@@ -33,6 +33,4 @@ async def upload_file(file: UploadFile = File(...)):
     return {
         "doc_uid": doc_uid,
         "filename": file.filename,
-        "chunks": len(chunks),
-        "status": "stored in vector db",
     }

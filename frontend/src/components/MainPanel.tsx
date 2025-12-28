@@ -33,6 +33,7 @@ export default function MainPanel({
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const bottomRef = useRef<HTMLDivElement | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,17 +47,22 @@ export default function MainPanel({
         setMessages(addedUserMessage);
         setInput("");
 
-        setIsLoading(true);
-        const res = await queryRag(activeDoc, input);
-        setIsLoading(false);
-
-        const aiMsg: Message = {
-            role: "AI",
-            content: res.response,
-            contexts: res.contexts,
-        };
-        const finalMessage = [...addedUserMessage, aiMsg];
-        setMessages(finalMessage);
+        try {
+            setError(null);
+            setIsLoading(true);
+            const res = await queryRag(activeDoc, input);
+            const aiMsg: Message = {
+                role: "AI",
+                content: res.response,
+                contexts: res.contexts,
+            };
+            const finalMessage = [...addedUserMessage, aiMsg];
+            setMessages(finalMessage);
+        } catch {
+            setError("Something went wrong. Try again.");
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     const activeDocument = documents.find((doc) => doc.id === activeDoc);
@@ -107,6 +113,25 @@ export default function MainPanel({
                                 Thinking...
                             </div>
                         )}
+                        {error && (
+                            <div
+                                className="self-start
+                                            max-w-[70%]
+                                            rounded-xl
+                                            px-6
+                                            py-4
+                                            shadow-[0_4px_20px_-5px_rgba(0,0,0,0.6)]
+                                            backdrop-blur-xl
+                                            transition-all
+                                            bg-linear-to-br from-[#1a1a2a]/60 to-[#14141f]/40
+                                            border border-red-500/30"
+                            >
+                                <div className="text-red-400 text-sm leading-relaxed">
+                                    {error}
+                                </div>
+                            </div>
+                        )}
+
                         <div ref={bottomRef} />
                     </div>
                     <div className="border-t border-white/10 bg-black/20 backdrop-blur-xl p-4 flex gap-3">

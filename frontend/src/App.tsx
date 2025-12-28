@@ -1,7 +1,8 @@
 import Sidebar from "./components/Sidebar";
 import MainPanel from "./components/MainPanel";
 import ContextPanel from "./components/ContextPanel";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchDocuments } from "./api/documents";
 
 type Message = {
     role: "User" | "AI";
@@ -20,6 +21,12 @@ function App() {
     const [documents, setDocuments] = useState<DocumentItem[]>([]);
     const [activeDoc, setActiveDoc] = useState<string | null>(null);
     const [chats, setChats] = useState<Record<string, Message[]>>({});
+
+    useEffect(() => {
+        fetchDocuments().then((res) => {
+            setDocuments(res.documents);
+        });
+    }, []);
 
     return (
         <div className="h-screen flex bg-linear-to-br from-[#050510] via-[#0b0b23] to-[#1b0f2e] text-gray-200 relative overflow-hidden">
