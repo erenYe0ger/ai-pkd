@@ -20,6 +20,7 @@ type Props = {
     activeDoc: string | null;
     messages: Message[];
     setMessages: (newMsgs: Message[]) => void;
+    toggleSidebar: () => void;
 };
 
 export default function MainPanel({
@@ -29,6 +30,7 @@ export default function MainPanel({
     activeDoc,
     messages,
     setMessages,
+    toggleSidebar,
 }: Props) {
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +71,18 @@ export default function MainPanel({
 
     return (
         <div className="flex-1 flex flex-col bg-black/20 backdrop-blur-xl border-x border-white/10 relative">
+            <div className="relative w-full h-14 flex items-center justify-center border-b border-white/20 px-3 font-semibold text-gray-400">
+                <button
+                    className="lg:hidden absolute left-3 z-10 p-2 rounded-lg
+                   transition touch-manipulation
+                   hover:bg-white/10 active:bg-white/10"
+                    onClick={toggleSidebar}
+                >
+                    ☰
+                </button>
+                {activeDocument?.docName}
+            </div>
+
             {!activeDoc ? (
                 <div className="flex-1 flex justify-center items-center">
                     <div className="text-transparent bg-clip-text bg-linear-to-r from-purple-300 to-cyan-300 text-lg font-medium">
@@ -77,10 +91,6 @@ export default function MainPanel({
                 </div>
             ) : (
                 <>
-                    <div className="border-b border-white/20 p-3 font-semibold text-gray-400 text-center">
-                        {activeDocument?.docName}
-                    </div>
-
                     <div className="flex-1 overflow-y-auto px-8 py-7 space-y-7 aurora-scroll flex flex-col">
                         {messages.map((msg, idx) => (
                             <div

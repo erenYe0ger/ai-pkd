@@ -10,6 +10,7 @@ type Props = {
     onAddDoc: (doc_uid: string, docName: string) => void;
     activeDoc: string | null;
     onSelectDoc: (doc_uid: string) => void;
+    isSidebarOpen: boolean;
 };
 
 export default function Sidebar({
@@ -17,6 +18,7 @@ export default function Sidebar({
     onAddDoc,
     activeDoc,
     onSelectDoc,
+    isSidebarOpen,
 }: Props) {
     async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
@@ -28,7 +30,14 @@ export default function Sidebar({
     }
 
     return (
-        <div className="w-64 border-r border-white/10 bg-black/30 backdrop-blur-xl p-6 flex flex-col shadow-lg shadow-black/30 relative">
+        <div
+            className={`fixed lg:static z-40 w-64 h-full
+                        border-r border-white/10 bg-black/30 backdrop-blur-xl p-6
+                        transform transition-transform
+                        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+                        lg:translate-x-0
+                        flex flex-col shadow-lg shadow-black/30`}
+        >
             <h2 className="font-semibold text-lg mb-6 bg-linear-to-r from-purple-400 to-cyan-400 text-transparent bg-clip-text">
                 Your Docs
             </h2>

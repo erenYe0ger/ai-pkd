@@ -9,7 +9,7 @@ type Props = {
 export default function ContextPanel({ isOpen, onClose, contexts }: Props) {
     return (
         <div
-            className={`flex flex-col fixed right-0 top-0 h-full w-150 bg-black/40 backdrop-blur-2xl border-l border-white/10 p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)] transform ${
+            className={`flex flex-col fixed right-0 top-0 h-full w-full lg:w-150 bg-black/40 backdrop-blur-2xl border-l border-white/10 p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)] transform ${
                 isOpen ? "translate-x-0" : "translate-x-full"
             } transition-transform duration-300`}
         >
