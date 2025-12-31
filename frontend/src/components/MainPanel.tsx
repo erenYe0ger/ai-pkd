@@ -80,12 +80,14 @@ export default function MainPanel({
                 >
                     ☰
                 </button>
-                {activeDocument?.docName}
+                <span className="text-sm md:text-base">
+                    {activeDocument?.docName}
+                </span>
             </div>
 
             {!activeDoc ? (
                 <div className="flex-1 flex justify-center items-center">
-                    <div className="text-transparent bg-clip-text bg-linear-to-r from-purple-300 to-cyan-300 text-lg font-medium">
+                    <div className="text-base md:text-lg text-transparent bg-clip-text bg-linear-to-r from-purple-300 to-cyan-300 font-medium">
                         Select or Upload a PDF to start
                     </div>
                 </div>
@@ -95,7 +97,7 @@ export default function MainPanel({
                         {messages.map((msg, idx) => (
                             <div
                                 key={idx}
-                                className={`rounded-xl px-6 py-4 max-w-[70%] shadow-[0_4px_20px_-5px_rgba(0,0,0,0.6)] transition-all backdrop-blur-xl border ${
+                                className={`text-sm md:text-base rounded-xl px-6 py-4 max-w-[90%] md:max-w-[70%] shadow-[0_4px_20px_-5px_rgba(0,0,0,0.6)] transition-all backdrop-blur-xl border ${
                                     msg.role === "User"
                                         ? "self-end bg-linear-to-br from-[#6a3cff]/40 to-[#00eaff]/30 border-[#875dff]/40"
                                         : "self-start bg-linear-to-br from-[#1a1a2a]/60 to-[#14141f]/40 border-[#2d2d40]/60"
@@ -106,7 +108,7 @@ export default function MainPanel({
                                 </div>
                                 {msg.role === "AI" && (
                                     <button
-                                        className="text-cyan-300 hover:text-cyan-200 text-sm mt-3 transition cursor-pointer"
+                                        className="text-cyan-300 hover:text-cyan-200 text-xs md:text-sm mt-3 transition cursor-pointer"
                                         onClick={() => {
                                             if (msg.contexts)
                                                 setNewContexts(msg.contexts);
@@ -119,7 +121,7 @@ export default function MainPanel({
                             </div>
                         ))}
                         {isLoading && (
-                            <div className="self-start text-gray-500 text-sm px-6 py-2 animate-pulse">
+                            <div className="self-start text-gray-500 text-xs md:text-sm px-6 py-2 animate-pulse">
                                 Thinking...
                             </div>
                         )}
@@ -136,7 +138,7 @@ export default function MainPanel({
                                             bg-linear-to-br from-[#1a1a2a]/60 to-[#14141f]/40
                                             border border-red-500/30"
                             >
-                                <div className="text-red-400 text-sm leading-relaxed">
+                                <div className="text-red-400 text-xs md:text-sm leading-relaxed">
                                     {error}
                                 </div>
                             </div>
@@ -144,7 +146,7 @@ export default function MainPanel({
 
                         <div ref={bottomRef} />
                     </div>
-                    <div className="border-t border-white/10 bg-black/20 backdrop-blur-xl p-4 flex gap-3">
+                    <div className="text-sm md:text-base border-t border-white/10 bg-black/20 backdrop-blur-xl p-4 flex gap-3">
                         <input
                             placeholder="Ask something..."
                             className="flex-1 px-4 py-2.5 rounded-xl bg-black/30 border border-white/10 text-gray-200 placeholder-gray-500 focus:ring-2 focus:ring-purple-500/40 outline-none"
@@ -156,7 +158,7 @@ export default function MainPanel({
                             disabled={isLoading}
                         />
                         <button
-                            className="px-5 py-2.5 rounded-xl bg-[#0a0a12] text-[#d8faff] font-medium border border-cyan-500/40 transition-all hover:text-white hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(0,255,255,0.45)] hover:scale-[1.04] active:scale-95 cursor-pointer"
+                            className="text-sm md:text-base px-5 py-2.5 rounded-xl bg-[#0a0a12] text-[#d8faff] font-medium border border-cyan-500/40 transition-all hover:text-white hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(0,255,255,0.45)] hover:scale-[1.04] active:scale-95 cursor-pointer"
                             onClick={handleQuery}
                             disabled={isLoading}
                         >

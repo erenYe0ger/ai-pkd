@@ -14,7 +14,7 @@ export default function ContextPanel({ isOpen, onClose, contexts }: Props) {
             } transition-transform duration-300`}
         >
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold bg-linear-to-r from-purple-400 to-cyan-400 text-transparent bg-clip-text">
+                <h3 className="text-base md:text-lg font-semibold bg-linear-to-r from-purple-400 to-cyan-400 text-transparent bg-clip-text">
                     Contexts Used
                 </h3>
                 <button
@@ -24,7 +24,7 @@ export default function ContextPanel({ isOpen, onClose, contexts }: Props) {
                     ✕
                 </button>
             </div>
-            <div className="overflow-y-auto flex-1 space-y-4 pr-2 aurora-scroll">
+            <div className="text-sm md:text-base overflow-y-auto flex-1 space-y-4 pr-2 aurora-scroll">
                 {contexts.map((context, index) => (
                     <div
                         key={index}
