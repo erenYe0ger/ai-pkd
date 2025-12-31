@@ -21,9 +21,16 @@ function App() {
     const [documents, setDocuments] = useState<DocumentItem[]>([]);
     const [activeDoc, setActiveDoc] = useState<string | null>(null);
     const [chats, setChats] = useState<Record<string, Message[]>>({});
-    const [isSidebarOpen, setIsSidebarOpen] = useState(
-        window.innerWidth < 1024
-    );
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        if (window.innerWidth < 1024) {
+            const timer = setTimeout(() => {
+                setIsSidebarOpen(true);
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, []);
 
     useEffect(() => {
         fetchDocuments().then((res) => {
@@ -55,35 +62,27 @@ function App() {
                     background:
                         "radial-gradient(circle at 20% 30%, #6a3cff, transparent 40%), radial-gradient(circle at 80% 60%, #00eaff, transparent 45%), radial-gradient(circle at 50% 90%, #ff00c8, transparent 55%)",
                 }}
-            ></div>
+            />
 
-            {/* Desktop Sidebar (part of flex layout) */}
-            <div className="hidden lg:flex">
-                <Sidebar
-                    documents={documents}
-                    onAddDoc={handleAddDoc}
-                    activeDoc={activeDoc}
-                    onSelectDoc={handleSelectDoc}
-                    isSidebarOpen={true}
-                />
-            </div>
+            {/* Mobile overlay */}
+            <div
+                className={`fixed inset-0 bg-black/50 z-30 lg:hidden
+                    transition-opacity duration-300
+                    ${
+                        isSidebarOpen
+                            ? "opacity-100 pointer-events-auto"
+                            : "opacity-0 pointer-events-none"
+                    }`}
+                onClick={() => setIsSidebarOpen(false)}
+            />
 
-            {/* Mobile Sidebar Overlay (NOT in flex layout) */}
-            {isSidebarOpen && (
-                <>
-                    <div
-                        className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-                        onClick={() => setIsSidebarOpen(false)}
-                    />
-                    <Sidebar
-                        documents={documents}
-                        onAddDoc={handleAddDoc}
-                        activeDoc={activeDoc}
-                        onSelectDoc={handleSelectDoc}
-                        isSidebarOpen={true}
-                    />
-                </>
-            )}
+            <Sidebar
+                documents={documents}
+                onAddDoc={handleAddDoc}
+                activeDoc={activeDoc}
+                onSelectDoc={handleSelectDoc}
+                isSidebarOpen={isSidebarOpen}
+            />
 
             <MainPanel
                 documents={documents}
