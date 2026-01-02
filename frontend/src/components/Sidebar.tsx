@@ -1,4 +1,7 @@
 import { uploadPDF } from "../api/upload";
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
 type DocumentItem = {
     id: string;
@@ -20,6 +23,14 @@ export default function Sidebar({
     onSelectDoc,
     isSidebarOpen,
 }: Props) {
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            setUser(data.user);
+        });
+    }, []);
+
     async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -64,6 +75,35 @@ export default function Sidebar({
                         {doc.docName}
                     </div>
                 ))}
+            </div>
+            <div className="mt-auto pt-4 border-t text-xs md:text-sm text-gray-400 flex flex-col items-center">
+                <span className="mb-1">Logged in as</span>
+
+                <span className="mb-2 font-semibold text-gray-200">
+                    {(() => {
+                        if (!user?.email) return "Guest";
+
+                        const fullName =
+                            user.user_metadata?.full_name ||
+                            user.user_metadata?.name ||
+                            "User";
+
+                        const firstName = fullName.split(" ")[0];
+
+                        return firstName.length > 15
+                            ? `${firstName.slice(0, 13)}...`
+                            : firstName;
+                    })()}
+                </span>
+
+                <button
+                    className={`cursor-pointer font-bold text-xs ${
+                        user?.email ? "text-red-500" : "text-cyan-400"
+                    }`}
+                    onClick={() => supabase.auth.signOut()}
+                >
+                    {user?.email ? "Log out" : "Login"}
+                </button>
             </div>
         </div>
     );

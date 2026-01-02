@@ -1,61 +1,82 @@
-import Sidebar from "./components/Sidebar";
-import MainPanel from "./components/MainPanel";
-import ContextPanel from "./components/ContextPanel";
 import { useEffect, useState } from "react";
-import { fetchDocuments } from "./api/documents";
+import { supabase } from "./lib/supabase";
+import Dashboard from "./Dashboard";
+import type { Session } from "@supabase/supabase-js";
 
-type Message = {
-    role: "User" | "AI";
-    content: string;
-    contexts?: string[];
-};
+export default function App() {
+    const [session, setSession] = useState<Session | null>(null);
+    const [text, setText] = useState("");
 
-type DocumentItem = {
-    id: string;
-    docName: string;
-};
+    const fullText =
+        "Ask questions, get answers, and explore insights from your PDFs.";
 
-function App() {
-    const [isContextOpen, setIsContextOpen] = useState(false);
-    const [contexts, setContexts] = useState<string[]>([]);
-    const [documents, setDocuments] = useState<DocumentItem[]>([]);
-    const [activeDoc, setActiveDoc] = useState<string | null>(null);
-    const [chats, setChats] = useState<Record<string, Message[]>>({});
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+    /* typing animation: type → wait 4s → restart */
     useEffect(() => {
-        if (window.innerWidth < 1024) {
-            const timer = setTimeout(() => {
-                setIsSidebarOpen(true);
-            }, 500);
-            return () => clearTimeout(timer);
-        }
+        let i = 0;
+        let interval: ReturnType<typeof setInterval>;
+        let timeout: ReturnType<typeof setTimeout>;
+
+        const startTyping = () => {
+            i = 0;
+            interval = setInterval(() => {
+                setText(fullText.slice(0, i + 1));
+                i++;
+
+                if (i === fullText.length) {
+                    clearInterval(interval);
+                    timeout = setTimeout(() => {
+                        setText("");
+                        startTyping();
+                    }, 4000);
+                }
+            }, 40);
+        };
+
+        startTyping();
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timeout);
+        };
     }, []);
 
+    /* auth handling + safe URL cleanup */
     useEffect(() => {
-        fetchDocuments().then((res) => {
-            setDocuments(res.documents);
+        supabase.auth.getSession().then(({ data }) => {
+            setSession(data.session);
         });
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((event, session) => {
+            setSession(session);
+
+            if (event === "SIGNED_IN") {
+                // Replace history entry to remove OAuth hash
+                window.history.replaceState(null, "", window.location.pathname);
+            }
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
-    function handleSelectDoc(doc_uid: string) {
-        setActiveDoc(doc_uid);
+    /* back-button protection (safe, non-intrusive) */
+    useEffect(() => {
+        const handlePopState = () => {
+            if (window.location.hash) {
+                window.history.replaceState(null, "", window.location.pathname);
+            }
+        };
 
-        if (!chats[doc_uid]) {
-            setChats((prev) => ({ ...prev, [doc_uid]: [] }));
-        }
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, []);
 
-        setIsSidebarOpen(false);
-    }
-
-    function handleAddDoc(doc_uid: string, docName: string) {
-        setDocuments((prev) => [...prev, { id: doc_uid, docName }]);
-        setChats((prev) => ({ ...prev, [doc_uid]: [] }));
-        setActiveDoc(doc_uid);
-    }
+    if (session) return <Dashboard />;
 
     return (
         <div className="h-screen flex bg-linear-to-br from-[#050510] via-[#0b0b23] to-[#1b0f2e] text-gray-200 relative overflow-hidden">
+            {/* aurora glow (same as Dashboard) */}
             <div
                 className="absolute inset-0 pointer-events-none opacity-30 blur-3xl"
                 style={{
@@ -64,46 +85,64 @@ function App() {
                 }}
             />
 
-            {/* Mobile overlay */}
-            <div
-                className={`fixed inset-0 bg-black/50 z-30 lg:hidden
-                    transition-opacity duration-300
-                    ${
-                        isSidebarOpen
-                            ? "opacity-100 pointer-events-auto"
-                            : "opacity-0 pointer-events-none"
-                    }`}
-                onClick={() => setIsSidebarOpen(false)}
-            />
+            {/* content */}
+            <div className="relative z-10 flex flex-col items-center justify-center w-full h-full px-6 text-center">
+                <h1 className="text-4xl md:text-6xl font-bold mb-5 bg-linear-to-r from-purple-400 to-cyan-400 text-transparent bg-clip-text">
+                    DocAI
+                </h1>
 
-            <Sidebar
-                documents={documents}
-                onAddDoc={handleAddDoc}
-                activeDoc={activeDoc}
-                onSelectDoc={handleSelectDoc}
-                isSidebarOpen={isSidebarOpen}
-            />
+                <p className="text-base md:text-lg h-7 mb-12 text-gray-300">
+                    {text}
+                    <span className="animate-pulse text-gray-400">|</span>
+                </p>
 
-            <MainPanel
-                documents={documents}
-                onShowContexts={() => setIsContextOpen(true)}
-                setNewContexts={setContexts}
-                activeDoc={activeDoc}
-                messages={activeDoc ? chats[activeDoc] || [] : []}
-                setMessages={(newMsgs) => {
-                    if (!activeDoc) return;
-                    setChats((prev) => ({ ...prev, [activeDoc]: newMsgs }));
-                }}
-                toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-            />
+                <div className="flex flex-col gap-4 w-full max-w-sm">
+                    <button
+                        onClick={() =>
+                            supabase.auth.signInWithOAuth({
+                                provider: "google",
+                            })
+                        }
+                        className="
+                            px-4 py-3 text-sm md:text-base
+                            rounded-xl
+                            bg-linear-to-r from-purple-600/40 to-cyan-500/40
+                            border border-purple-500/30
+                            text-gray-100 font-medium
+                            backdrop-blur-md
+                            shadow-[0_0_14px_rgba(120,0,255,0.35)]
+                            hover:shadow-[0_0_22px_rgba(0,255,255,0.45)]
+                            transition-all
+                            hover:scale-[1.03] active:scale-95
+                            cursor-pointer
+                        "
+                    >
+                        Sign in with Google
+                    </button>
 
-            <ContextPanel
-                contexts={contexts}
-                isOpen={isContextOpen}
-                onClose={() => setIsContextOpen(false)}
-            />
+                    <button
+                        onClick={() => supabase.auth.signInAnonymously()}
+                        className="
+                            px-4 py-3 text-sm md:text-base
+                            rounded-xl
+                            bg-black/30
+                            border border-white/10
+                            text-gray-300
+                            backdrop-blur-md
+                            hover:bg-white/5 hover:text-gray-100
+                            transition-all
+                            hover:scale-[1.02] active:scale-95
+                            cursor-pointer
+                        "
+                    >
+                        Continue as Guest
+                    </button>
+                </div>
+
+                <div className="absolute bottom-4 text-sm md:text-base text-gray-300">
+                    Made with ❤️ by Goutam
+                </div>
+            </div>
         </div>
     );
 }
-
-export default App;
